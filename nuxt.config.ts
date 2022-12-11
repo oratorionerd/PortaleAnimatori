@@ -18,6 +18,9 @@ export default defineNuxtConfig({
     },
     ssr: true,
     app: {
-        buildAssetsDir: '/assets/'
+        buildAssetsDir: '/assets/',
+        head: {
+            title: 'Case Campi'
+        }
     }
 })
