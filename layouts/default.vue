@@ -9,13 +9,13 @@
                 </v-tab>
             </v-tabs>
             <v-spacer></v-spacer>
-            <v-avatar class="hidden-sm-and-down" color="grey-darken-1"></v-avatar>
+            <!--<v-avatar class="hidden-sm-and-down" color="grey-darken-1"></v-avatar>-->
         </v-app-bar>
 
         <v-main>
             <slot />
         </v-main>
-        <v-footer app bottom fixed padless>Made with <v-icon icon="mdi-heart" color="red"></v-icon> by <a
+        <v-footer app bottom fixed class="pa-1">Made with <v-icon icon="mdi-heart" color="red"></v-icon> by <a
                 href="https://www.linkedin.com/in/davide-bulbarelli-2247ba122/">Davide Bulbarelli</a></v-footer>
     </v-app>
 </template>
