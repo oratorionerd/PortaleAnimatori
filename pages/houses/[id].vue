@@ -15,8 +15,8 @@
         </v-row>
         <v-row>
             <v-col cols="12" class="d-flex flex-wrap">
-                <v-img  v-for="image in items" class="bg-white w-50" :aspect-ratio="1"
-                    :src="image.src"></v-img>
+                <v-img  v-for="image in images" class="bg-white w-50" :aspect-ratio="1"
+                    :src="image"></v-img>
             </v-col>
         </v-row>
     </v-container>
@@ -25,8 +25,10 @@
 const client = useSupabaseClient()
 const route = useRoute()
 const isFav = ref(false)
-const { data: houses } = await client.from('houses').select('id, name, price, price_per_person, size, region, description').eq('visible', true).eq('id', route.params.id).order('created_at')
+const { data: houses } = await client.from('houses').select('id, name, price, price_per_person, size, region, description, images').eq('visible', true).eq('id', route.params.id).order('created_at')
 const house = ref(houses ? houses[0] : null)
+const rawImages:string = houses ? houses[0].images : ''
+const images = ref(rawImages.split(','))
 const items = [
     {
         src: 'https://cdn.vuetifyjs.com/images/carousel/squirrel.jpg',

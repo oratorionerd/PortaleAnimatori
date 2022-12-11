@@ -47,12 +47,12 @@
                 </v-expansion-panels>
                 <v-card>
                     <v-list lines="two">
-                        <template v-for="house in houses" :key="house.id">
+                        <template v-for="house in filteredHouses" :key="house.id">
                             <v-list-item link @click="showHouse(house.id)">
                                 <v-list-item-title>{{ house.name }}</v-list-item-title>
 
                                 <v-list-item-subtitle>
-                                    Costo{{ house.price_per_person ? ' per persona: ' : ': ' }} {{ house.price }} <br/>
+                                    Costo{{ house.price_per_person ? ' per persona: ' : ': ' }} {{ house.price }} <br />
                                     Posti: {{ house.size }}
                                 </v-list-item-subtitle>
                             </v-list-item>
@@ -66,6 +66,7 @@
     </v-container>
 </template>
 <script setup lang="ts">
+import { ref, watch } from 'vue'
 const client = useSupabaseClient()
 
 const regions = ['Trentino', 'Emilia', 'Veneto', 'Lombardia']
@@ -73,17 +74,23 @@ const regions = ['Trentino', 'Emilia', 'Veneto', 'Lombardia']
 const filters = ref({
     budget: 20,
     people: 10,
-    regions: []
+    regions: ['Trentino', 'Emilia']
 })
 
 const loading = ref(null)
 const { data: houses } = await client.from('houses').select('id, name, price, price_per_person, size, region').eq('visible', true).order('created_at')
-for(let i=0;i<10;i++) {
+for (let i = 0; i < 10; i++) {
     houses?.push(houses[0])
 }
 function showHouse(id: number) {
     navigateTo(`/houses/${id}`)
 }
+const filteredHouses = ref(houses)
+watch(filters.value, async (newFilter, oldFilter) => {
+    if (houses != null) {
+        filteredHouses.value = houses?.filter(house => house.price <= newFilter.budget && house.size >= newFilter.people && newFilter.regions.includes(house.region))
+    }
+})
 </script>
 <style scoped>
 
