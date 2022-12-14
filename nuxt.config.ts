@@ -4,13 +4,7 @@ export default defineNuxtConfig({
     build: {
         transpile: ['vuetify'],
     },
-    modules: ['@nuxtjs/supabase', '@kevinmarrec/nuxt-pwa'],
-    pwa: {
-        meta: {
-            // Generate splash screens for iOS
-            mobileAppIOS: true,
-        }
-    },
+    modules: ['@nuxtjs/supabase'],
     vite: {
         define: {
             'process.env.DEBUG': false,

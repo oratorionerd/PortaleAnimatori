@@ -41,6 +41,10 @@
                                     <v-combobox v-model="filters.regions" :items="regions" label="Regioni" multiple
                                         chips></v-combobox>
                                 </v-col>
+                                <v-col cols="12">
+                                    <v-switch v-model="filters.favOnly" hide-details inset :color="filters.favOnly ? 'secondary' : ''"
+                                        :label="`Mostra solo preferiti: ${filters.favOnly}`"></v-switch>
+                                </v-col>
                             </v-row>
                         </v-expansion-panel-text>
                     </v-expansion-panel>
@@ -66,21 +70,27 @@
     </v-container>
 </template>
 <script setup lang="ts">
+import { hostname } from 'os';
 import { ref, watch } from 'vue'
 const client = useSupabaseClient()
 
-const regions = ['Trentino', 'Emilia', 'Veneto', 'Lombardia']
+const regions = ref([])
 
 const filters = ref({
     budget: 20,
     people: 10,
-    regions: ['Trentino', 'Emilia']
+    regions: [],
+    favOnly: false
 })
 
 const loading = ref(null)
 const { data: houses } = await client.from('houses').select('id, name, price, price_per_person, size, region').eq('visible', true).order('created_at')
-for (let i = 0; i < 10; i++) {
-    houses?.push(houses[0])
+
+for(const house of houses!) {
+    if(!regions.value.includes(house.region) ) {
+        regions.value.push(house.region)
+        filters.value.regions.push(house.region)
+    }
 }
 function showHouse(id: number) {
     navigateTo(`/houses/${id}`)
@@ -88,7 +98,13 @@ function showHouse(id: number) {
 const filteredHouses = ref(houses)
 watch(filters.value, async (newFilter, oldFilter) => {
     if (houses != null) {
-        filteredHouses.value = houses?.filter(house => house.price <= newFilter.budget && house.size >= newFilter.people && newFilter.regions.includes(house.region))
+        if (newFilter.favOnly == true && localStorage.getItem('fav') != null && localStorage.getItem('fav') != '[]') {
+            const favArray: number[] = JSON.parse(localStorage.getItem('fav')!)
+            filteredHouses.value = houses.filter(house => favArray.includes(house.id))
+        }
+        else {
+            filteredHouses.value = houses.filter(house => (house.price_per_person ? house.price : house.price/house.size)  <= newFilter.budget && house.size >= newFilter.people && newFilter.regions.includes(house.region))
+        }
     }
 })
 </script>
