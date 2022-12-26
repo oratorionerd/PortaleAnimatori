@@ -2,7 +2,6 @@
     <v-container class="py-2 px-2 fill-height">
         <v-row class="h-100">
             <v-col cols="12" class="h-100">
-
                 <v-expansion-panels>
                     <v-expansion-panel>
                         <v-expansion-panel-title v-slot="{ open }">
@@ -42,7 +41,8 @@
                                         chips></v-combobox>
                                 </v-col>
                                 <v-col cols="12">
-                                    <v-switch v-model="filters.favOnly" hide-details inset :color="filters.favOnly ? 'secondary' : ''"
+                                    <v-switch v-model="filters.favOnly" hide-details inset
+                                        :color="filters.favOnly ? 'secondary' : ''"
                                         :label="`Mostra solo preferiti: ${filters.favOnly}`"></v-switch>
                                 </v-col>
                             </v-row>
@@ -67,13 +67,21 @@
                 </v-card>
             </v-col>
         </v-row>
+        <login :dialog="false"></login>
+        <v-btn href="https://forms.gle/dyGu5fWRjLwX2ru7A" target="_blank" class="add" icon="mdi-plus" color="primary"></v-btn>
     </v-container>
+
 </template>
 <script setup lang="ts">
-import { hostname } from 'os';
 import { ref, watch } from 'vue'
 const client = useSupabaseClient()
-
+const user = useSupabaseUser();
+if (user.value?.aud == 'authenticated') {
+    console.log("Authenticated")
+}
+else {
+    console.log("Not auth")
+}
 const regions = ref([])
 
 const filters = ref({
@@ -86,8 +94,8 @@ const filters = ref({
 const loading = ref(null)
 const { data: houses } = await client.from('houses').select('id, name, price, price_per_person, size, region').eq('visible', true).order('created_at')
 
-for(const house of houses!) {
-    if(!regions.value.includes(house.region) ) {
+for (const house of houses!) {
+    if (!regions.value.includes(house.region)) {
         regions.value.push(house.region)
         filters.value.regions.push(house.region)
     }
@@ -103,11 +111,20 @@ watch(filters.value, async (newFilter, oldFilter) => {
             filteredHouses.value = houses.filter(house => favArray.includes(house.id))
         }
         else {
-            filteredHouses.value = houses.filter(house => (house.price_per_person ? house.price : house.price/house.size)  <= newFilter.budget && house.size >= newFilter.people && newFilter.regions.includes(house.region))
+            filteredHouses.value = houses.filter(house => (house.price_per_person ? house.price : house.price / house.size) <= newFilter.budget && house.size >= newFilter.people && newFilter.regions.includes(house.region))
         }
     }
 })
+
+function addHouse() {
+
+}
 </script>
 <style scoped>
-
+.add {
+    position: fixed;
+    bottom: 40px;
+    right: 2%;
+    z-index: 2;
+}
 </style>
