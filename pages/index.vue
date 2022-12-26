@@ -67,7 +67,6 @@
                 </v-card>
             </v-col>
         </v-row>
-        <login :dialog="false"></login>
         <v-btn href="https://forms.gle/dyGu5fWRjLwX2ru7A" target="_blank" class="add" icon="mdi-plus" color="primary"></v-btn>
     </v-container>
 
@@ -76,12 +75,7 @@
 import { ref, watch } from 'vue'
 const client = useSupabaseClient()
 const user = useSupabaseUser();
-if (user.value?.aud == 'authenticated') {
-    console.log("Authenticated")
-}
-else {
-    console.log("Not auth")
-}
+
 const regions = ref([])
 
 const filters = ref({
