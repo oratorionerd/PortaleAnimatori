@@ -1,6 +1,6 @@
 <template>
     <v-app :theme="'festantonioTheme'">
-        <v-app-bar :color="'primary'">
+        <v-app-bar :color="'primary'" style="width: 100%">
 
             <v-spacer></v-spacer>
             <v-tabs centered color="grey-darken-2 fill-height">

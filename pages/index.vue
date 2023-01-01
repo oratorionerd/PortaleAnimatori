@@ -10,14 +10,17 @@
                                     <v-fade-transition leave-absolute>
                                         <span v-if="open">Quali esigenze ha il tuo gruppo?</span>
                                         <v-row v-else no-gutters style="width: 100%">
-                                            <v-col cols="4" class="d-flex justify-start">
+                                            <v-col cols="3" class="d-flex justify-start">
                                                 Filtri
                                             </v-col>
-                                            <v-col cols="4" class="d-flex justify-start">
+                                            <v-col cols="3" class="d-flex justify-start">
                                                 Posti: {{ filters.people || 'Non selezionato' }}
                                             </v-col>
-                                            <v-col cols="4" class="d-flex justify-start">
+                                            <v-col cols="3" class="d-flex justify-start">
                                                 Budget: {{ filters.budget || 'Non selezionato' }}
+                                            </v-col>
+                                            <v-col cols="3" class="d-flex justify-start">
+                                                Distanza (KM): {{ filters.distance || 'Non selezionato' }}
                                             </v-col>
                                         </v-row>
                                     </v-fade-transition>
@@ -35,6 +38,11 @@
                                     Costo a persona
                                     <v-slider v-model="filters.budget" thumb-label :max="20" :min="5"
                                         :step="1"></v-slider>
+                                </v-col>
+                                <v-col cols="12" class="my-1">
+                                    Distanza massima in KM (in linea d'aria)
+                                    <v-slider v-model="filters.distance" thumb-label :max="200" :min="10"
+                                        :step="5"></v-slider>
                                 </v-col>
                                 <v-col cols="12">
                                     <v-combobox v-model="filters.regions" :items="regions" label="Regioni" multiple
@@ -81,12 +89,13 @@ const regions = ref([])
 const filters = ref({
     budget: 20,
     people: 10,
+    distance: 200,
     regions: [],
     favOnly: false
 })
 
 const loading = ref(null)
-const { data: houses } = await client.from('houses').select('id, name, price, price_per_person, size, region').eq('visible', true).order('created_at')
+const { data: houses } = await client.from('houses').select('id, name, price, price_per_person, size, region, distance').eq('visible', true).order('created_at')
 
 for (const house of houses!) {
     if (!regions.value.includes(house.region)) {
@@ -105,7 +114,7 @@ watch(filters.value, async (newFilter, oldFilter) => {
             filteredHouses.value = houses.filter(house => favArray.includes(house.id))
         }
         else {
-            filteredHouses.value = houses.filter(house => (house.price_per_person ? house.price : house.price / house.size) <= newFilter.budget && house.size >= newFilter.people && newFilter.regions.includes(house.region))
+            filteredHouses.value = houses.filter(house => (house.price_per_person ? house.price : house.price / house.size) <= newFilter.budget && house.size >= newFilter.people && newFilter.regions.includes(house.region) && house.distance <= newFilter.distance)
         }
     }
 })
